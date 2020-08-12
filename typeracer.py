@@ -120,6 +120,6 @@ class Typer:
 
 
 if __name__ == "__main__":
-    typer = Typer(LINK, delay=0.2, practice=False)
+    typer = Typer(LINK, delay=0.12, practice=False)
     typer.get_text()
     typer.send_text()
