@@ -17,9 +17,10 @@ LINK = 'https://play.typeracer.com'
 
 
 class Typer:
-    def __init__(self, link, delay):
+    def __init__(self, link, delay, practice=True):
         self.link = link
         self.delay = delay
+        self.practice = practice
         self.words = []
         self.launch_browser()
 
@@ -41,12 +42,12 @@ class Typer:
         sleep(1)
         self.focus_text_box()
 
-    def launch_typing_area(self, practice=True):
+    def launch_typing_area(self):
         """ 
         Loads the typing area by using the keyboard shortcuts 'CTRL+ALT+O' for practice
         mode and 'CTRL+ALT+I' for a real game.
         """
-        key = 'o' if practice else 'i'
+        key = 'o' if self.practice else 'i'
         ActionChains(self.driver).key_down(Keys.CONTROL).key_down(Keys.ALT).send_keys(
             key).key_up(Keys.CONTROL).key_up(Keys.ALT).perform()
 
@@ -102,11 +103,16 @@ class Typer:
 
     def send_text(self):
         """ Repeatedly attempts to type text in the input box until allowed """
+        words = self.text.split()
         text_box_open = False
         while not text_box_open:  # keep trying to type until the textbox allows entry
             try:
-                for word in self.text.split():
-                    self.text_box.send_keys(word + ' ')
+                for i, word in enumerate(words):
+                    # sending trailing space on the last word will lead to sub 100% accuracy
+                    if i == len(words) - 1:  # last word, no trailing space
+                        self.text_box.send_keys(word)
+                    else:
+                        self.text_box.send_keys(word + ' ')
                     text_box_open = True
                     sleep(self.delay)
             except:
@@ -114,6 +120,6 @@ class Typer:
 
 
 if __name__ == "__main__":
-    typer = Typer(LINK, delay=0.2)
+    typer = Typer(LINK, delay=0.2, practice=False)
     typer.get_text()
     typer.send_text()
